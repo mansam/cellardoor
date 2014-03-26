@@ -41,7 +41,7 @@ def pkg_files(environ, start_response, parameters):
 
     """
 
-    from cache import list_distributions
+    from cache import list_distributions, mirror_dist
 
     path = environ.get('PATH_INFO', '').lstrip('/')
     pkg = path.split('/')[1]
@@ -54,7 +54,9 @@ def pkg_files(environ, start_response, parameters):
 
     dists = list_distributions(pkg)
     if dists == []:
-        return not_found(environ, start_response)
+        dists = mirror_dist(pkg)
+        if dists == []:
+            return not_found(environ, start_response)
 
     for dist in dists:
         response += "<a href='/packages/%s/%s'>%s</a><br>" % (pkg, dist, dist)
@@ -66,6 +68,7 @@ def pkg_files(environ, start_response, parameters):
 
 def download_dist(environ, start_response, parameters):
     """
+    Create a download for the selected distribution file.
 
     """
 
@@ -98,10 +101,10 @@ def router(environ, start_response):
     """
 
     routes = [
-    (r'^$', index),
-    (r'packages/?$', pkg_index),
-    (r'packages/([^\/]+)/$', pkg_files),
-    (r'packages/([^/]+)/([^/]+)$', download_dist)
+        (r'^$', index),
+        (r'packages/?$', pkg_index),
+        (r'packages/([^\/]+)/$', pkg_files),
+        (r'packages/([^/]+)/([^/]+)$', download_dist)
     ]
 
     parameters = parse_qs(environ.get('QUERY_STRING', ''))

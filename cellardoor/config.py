@@ -11,4 +11,4 @@ if 'CELLARDOOR' in os.environ:
 config = configparser.SafeConfigParser()
 config.read(config_paths)
 
-PACKAGE_CACHE_DIR = config.get('cache', 'path')
+PACKAGE_CACHE_DIR = os.path.expanduser(config.get('cache', 'path'))
